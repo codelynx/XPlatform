@@ -141,9 +141,9 @@ extension XImage {
 
 extension Image {
 	init(_ image: XImage) {
-		#if os(macOS)
+		#if canImport(AppKit)
 		self.init(nsImage: image)
-		#else
+		#elseif canImport(UIKit)
 		self.init(uiImage: image)
 		#endif
 	}
@@ -155,9 +155,9 @@ extension Image {
 extension View {
 	/// Applies a link-style button appearance across platforms
 	func linkButtonStyle() -> some View {
-		#if os(macOS)
+		#if canImport(AppKit)
 		self.buttonStyle(.link)
-		#else
+		#elseif canImport(UIKit)
 		self.buttonStyle(.plain)
 			.foregroundColor(.blue)
 		#endif
@@ -165,18 +165,18 @@ extension View {
 	
 	/// Applies a primary button style across platforms
 	func primaryButtonStyle() -> some View {
-		#if os(macOS)
+		#if canImport(AppKit)
 		self.buttonStyle(.borderedProminent)
-		#else
+		#elseif canImport(UIKit)
 		self.buttonStyle(.borderedProminent)
 		#endif
 	}
 	
 	/// Applies a secondary button style across platforms
 	func secondaryButtonStyle() -> some View {
-		#if os(macOS)
+		#if canImport(AppKit)
 		self.buttonStyle(.bordered)
-		#else
+		#elseif canImport(UIKit)
 		self.buttonStyle(.bordered)
 		#endif
 	}
@@ -187,11 +187,11 @@ extension View {
 public struct XPlatform {
 	// MARK: - Colors
 	
-	#if os(macOS)
+	#if canImport(AppKit)
 	public static let primaryBackgroundColor = NSColor.controlBackgroundColor
 	public static let secondaryBackgroundColor = NSColor.windowBackgroundColor
 	public static let tertiaryBackgroundColor = NSColor.controlBackgroundColor
-	#else
+	#elseif canImport(UIKit)
 	public static let primaryBackgroundColor = UIColor.systemBackground
 	public static let secondaryBackgroundColor = UIColor.secondarySystemBackground
 	public static let tertiaryBackgroundColor = UIColor.tertiarySystemBackground
@@ -199,36 +199,36 @@ public struct XPlatform {
 	
 	/// Adaptive background color that works well for text views
 	public static var adaptiveTextBackgroundColor: XColor {
-		#if os(macOS)
+		#if canImport(AppKit)
 		return NSColor.textBackgroundColor
-		#else
+		#elseif canImport(UIKit)
 		return UIColor.systemBackground
 		#endif
 	}
 	
 	/// Adaptive label color
 	public static var labelColor: XColor {
-		#if os(macOS)
+		#if canImport(AppKit)
 		return NSColor.labelColor
-		#else
+		#elseif canImport(UIKit)
 		return UIColor.label
 		#endif
 	}
 	
 	/// Adaptive secondary label color
 	public static var secondaryLabelColor: XColor {
-		#if os(macOS)
+		#if canImport(AppKit)
 		return NSColor.secondaryLabelColor
-		#else
+		#elseif canImport(UIKit)
 		return UIColor.secondaryLabel
 		#endif
 	}
 	
 	/// Adaptive separator color
 	public static var separatorColor: XColor {
-		#if os(macOS)
+		#if canImport(AppKit)
 		return NSColor.separatorColor
-		#else
+		#elseif canImport(UIKit)
 		return UIColor.separator
 		#endif
 	}
