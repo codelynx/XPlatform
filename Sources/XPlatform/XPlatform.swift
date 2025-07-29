@@ -92,7 +92,7 @@ extension XView {
 			self.window?.makeFirstResponder(nil)
 		}
 		#else
-		_ = self.resignFirstResponder()
+		_ = super.resignFirstResponder()
 		#endif
 	}
 	
@@ -129,7 +129,7 @@ extension XView {
 extension XImage {
 
 	#if canImport(AppKit)
-		func jpegData(compressionQuality: CGFloat) -> Data? {
+		public func jpegData(compressionQuality: CGFloat) -> Data? {
 			guard let tiffData = self.tiffRepresentation,
 			      let bitmap = NSBitmapImageRep(data: tiffData) else { return nil }
 			return bitmap.representation(using: .jpeg, properties: [.compressionFactor: compressionQuality])
@@ -140,7 +140,7 @@ extension XImage {
 // MARK: - Image Extension
 
 extension Image {
-	init(_ image: XImage) {
+	public init(_ image: XImage) {
 		#if canImport(AppKit)
 		self.init(nsImage: image)
 		#elseif canImport(UIKit)
@@ -154,7 +154,7 @@ extension Image {
 
 extension View {
 	/// Applies a link-style button appearance across platforms
-	func linkButtonStyle() -> some View {
+	public func linkButtonStyle() -> some View {
 		#if canImport(AppKit)
 		self.buttonStyle(.link)
 		#elseif canImport(UIKit)
@@ -164,7 +164,7 @@ extension View {
 	}
 	
 	/// Applies a primary button style across platforms
-	func primaryButtonStyle() -> some View {
+	public func primaryButtonStyle() -> some View {
 		#if canImport(AppKit)
 		self.buttonStyle(.borderedProminent)
 		#elseif canImport(UIKit)
@@ -173,7 +173,7 @@ extension View {
 	}
 	
 	/// Applies a secondary button style across platforms
-	func secondaryButtonStyle() -> some View {
+	public func secondaryButtonStyle() -> some View {
 		#if canImport(AppKit)
 		self.buttonStyle(.bordered)
 		#elseif canImport(UIKit)
