@@ -256,6 +256,146 @@ public struct XPlatform {
 	}
 }
 
+// MARK: - XColor Extensions
+
+extension XColor {
+	#if canImport(AppKit)
+	// MARK: - Background Colors
+	
+	/// Maps to iOS's systemBackground - the standard background color
+	public static var systemBackground: XColor {
+		return .windowBackgroundColor
+	}
+	
+	/// Maps to iOS's secondarySystemBackground - secondary level background
+	public static var secondarySystemBackground: XColor {
+		return .controlBackgroundColor
+	}
+	
+	/// Maps to iOS's tertiarySystemBackground - tertiary level background
+	public static var tertiarySystemBackground: XColor {
+		return .underPageBackgroundColor
+	}
+	
+	/// Maps to iOS's systemGroupedBackground - used for grouped content backgrounds
+	public static var systemGroupedBackground: XColor {
+		return .controlBackgroundColor
+	}
+	
+	/// Maps to iOS's secondarySystemGroupedBackground
+	public static var secondarySystemGroupedBackground: XColor {
+		return .windowBackgroundColor
+	}
+	
+	/// Maps to iOS's tertiarySystemGroupedBackground
+	public static var tertiarySystemGroupedBackground: XColor {
+		return .underPageBackgroundColor
+	}
+	
+	// MARK: - Label Colors
+	
+	/// Maps to iOS's label - primary label color
+	public static var label: XColor {
+		return .labelColor
+	}
+	
+	/// Maps to iOS's secondaryLabel
+	public static var secondaryLabel: XColor {
+		return .secondaryLabelColor
+	}
+	
+	/// Maps to iOS's tertiaryLabel
+	public static var tertiaryLabel: XColor {
+		return .tertiaryLabelColor
+	}
+	
+	/// Maps to iOS's quaternaryLabel
+	public static var quaternaryLabel: XColor {
+		return .quaternaryLabelColor
+	}
+	
+	/// Maps to iOS's placeholderText
+	public static var placeholderText: XColor {
+		return .placeholderTextColor
+	}
+	
+	// MARK: - Fill Colors
+	
+	/// Maps to iOS's systemFill
+	public static var systemFill: XColor {
+		return .unemphasizedSelectedContentBackgroundColor
+	}
+	
+	/// Maps to iOS's secondarySystemFill
+	public static var secondarySystemFill: XColor {
+		return .unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.8)
+	}
+	
+	/// Maps to iOS's tertiarySystemFill
+	public static var tertiarySystemFill: XColor {
+		return .unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.6)
+	}
+	
+	/// Maps to iOS's quaternarySystemFill
+	public static var quaternarySystemFill: XColor {
+		return .unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.4)
+	}
+	
+	// MARK: - Separator Colors
+	
+	/// Maps to iOS's separator
+	public static var separator: XColor {
+		return .separatorColor
+	}
+	
+	/// Maps to iOS's opaqueSeparator
+	public static var opaqueSeparator: XColor {
+		return .gridColor
+	}
+	
+	// MARK: - Link Color
+	
+	/// Maps to iOS's link
+	public static var link: XColor {
+		return .linkColor
+	}
+	
+	// MARK: - System Colors
+	// Note: macOS 10.14+ already provides systemBlue, systemGreen, etc. natively
+	// so we don't need to redefine them here
+	
+	// MARK: - Gray Colors
+	
+	/// Maps to iOS's systemGray2
+	public static var systemGray2: XColor {
+		return .darkGray
+	}
+	
+	/// Maps to iOS's systemGray3
+	public static var systemGray3: XColor {
+		return .gray
+	}
+	
+	/// Maps to iOS's systemGray4
+	public static var systemGray4: XColor {
+		return .gray.withAlphaComponent(0.8)
+	}
+	
+	/// Maps to iOS's systemGray5
+	public static var systemGray5: XColor {
+		return .lightGray
+	}
+	
+	/// Maps to iOS's systemGray6
+	public static var systemGray6: XColor {
+		return .lightGray.withAlphaComponent(0.8)
+	}
+	
+	#else
+	// iOS already has these properties natively
+	#endif
+}
+
 // MARK: - Font Extensions
 
 extension XFont {
