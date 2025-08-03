@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2025-08-03
+
+### Added
+- **Tint Color Support for XView**
+  - `xTintColor` property - Cross-platform tint color getter/setter
+  - `effectiveTintColor` property - Gets the effective tint color (respects system accent color on macOS)
+
+- **Purpose-Specific Color Properties on XView**
+  - `appropriateBackgroundColor` - Context-aware background color based on view type and hierarchy
+  - `appropriateLabelColor` - Context-aware text color for controls vs regular views
+  - `appropriateBorderColor` - Border/stroke color for the view
+  - `appropriateSelectionColor` - Selection/highlight color
+
+- **Enhanced XColor Semantic Mappings**
+  - **Selection Colors**
+    - `selectedContentBackground` - Selected content background color
+    - `unemphasizedSelectedContentBackground` - Unemphasized selected content
+    - `selectedTextBackground` - Selected text background
+    - `selectedControl` - Selected control color (respects accent color)
+    - `alternateSelectedControl` - Alternate selection for lists
+  - **Control Colors**
+    - `controlText` - Text color for controls
+    - `disabledControlText` - Disabled control text color
+    - `controlBackground` - Control background color
+    - `textBackground` - Text field background color
+  - **Cross-platform Semantic Colors** (prefixed with 'x')
+    - `accent` - User's accent/tint color preference
+    - `windowBackground` - Main window/view background
+    - `xControlBackground` - Background for controls
+    - `xLabel`, `xSecondaryLabel`, `xTertiaryLabel` - Text hierarchy
+    - `xSeparator` - Divider lines
+    - `xLink` - Link text color
+    - `xGrid` - Table/collection grid lines
+    - `xPlaceholderText` - Placeholder text in controls
+    - `xSelectedContentBackground` - Selected content highlighting
+    - `xDisabledText` - Disabled state text
+
+- **Purpose-Specific Color Helper Methods**
+  - `colorForInteractiveElement()` - For buttons, links, etc.
+  - `colorForSuccess()` - Green color for success states
+  - `colorForWarning()` - Orange color for warnings
+  - `colorForError()` - Red color for errors
+  - `colorForInfo()` - Blue color for information
+  - `colorForDisabledState()` - For disabled elements
+  - `colorForPlaceholder()` - For placeholder text
+  - `colorForSelection()` - For selected content
+
+### Fixed
+- Deprecated `alternateSelectedControlColor` usage with proper macOS 11.0+ availability check
+- All `controlAccentColor` usage now has proper macOS 10.14+ availability checks
+
 ## [1.1.4] - 2025-07-30
 
 ### Added
