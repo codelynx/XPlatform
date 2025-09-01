@@ -61,8 +61,21 @@ XPlatform provides unified type aliases that map to the appropriate platform-spe
 | `XCollectionViewLayout` | `NSCollectionViewLayout` | `UICollectionViewLayout` |
 | `XAlert` | `NSAlert` | `UIAlertController` |
 | `XPasteboard` | `NSPasteboard` | `UIPasteboard` |
+| `XResponder` | `NSResponder` | `UIResponder` |
 
 ### Extensions
+
+#### CGRect Extensions
+
+```swift
+extension CGRect {
+    func transform(to targetRect: CGRect) -> CGAffineTransform
+}
+```
+- **`transform(to:)`**: Creates a transform that maps this rectangle to the target rectangle
+  - Parameters: `targetRect` - The destination rectangle to transform to
+  - Returns: A `CGAffineTransform` that maps this rectangle to the target rectangle
+  - Use Case: Useful for scaling and positioning content between different coordinate spaces
 
 #### XView Extensions
 
@@ -105,6 +118,37 @@ extension XView {
 ##### Context Menus
 - **`addContextMenu(_:)`** (macOS): Adds a context menu to the view
 - **`addContextMenu(provider:)`** (iOS 13.0+): Adds a context menu with a provider closure
+
+#### XResponder Extensions
+
+```swift
+extension XResponder {
+    func findResponder<T>(of type: T.Type) -> T?
+    var next: XResponder? { get } // macOS only - unified API
+    var responders: [XResponder] { get }
+}
+```
+
+##### Responder Chain Navigation
+- **`findResponder(of:)`**: Finds the first responder of the specified type in the responder chain
+  - Parameters: `type` - The type of responder to search for
+  - Returns: The first responder matching the type, or `nil` if not found
+  - Use Case: Navigate the responder chain to find specific view controllers or views
+
+- **`next`**: Returns the next responder in the chain (unified API for iOS/macOS)
+  - Platform Notes: On macOS, provides a unified interface matching iOS's `next` property
+
+- **`responders`**: Returns all responders in the chain as an array
+  - Returns: An array containing all responders from the current responder up the chain
+  - Use Case: Useful for debugging or iterating through the entire responder chain
+
+##### Sequence Conformance
+XResponder conforms to Sequence protocol, allowing iteration through the responder chain:
+```swift
+for responder in view {
+    print(type(of: responder))
+}
+```
 
 #### XImage Extensions
 
@@ -247,6 +291,47 @@ struct XPlatform {
 - **`temporaryDirectory`**: Returns the temporary directory URL
 
 ## Usage Examples
+
+### CGRect Transform
+
+```swift
+import XPlatform
+import CoreGraphics
+
+let sourceRect = CGRect(x: 0, y: 0, width: 100, height: 100)
+let targetRect = CGRect(x: 50, y: 50, width: 200, height: 200)
+
+// Create a transform that maps source to target
+let transform = sourceRect.transform(to: targetRect)
+
+// Apply the transform to points or paths
+let point = CGPoint(x: 50, y: 50)
+let transformedPoint = point.applying(transform)
+```
+
+### Responder Chain Navigation
+
+```swift
+import XPlatform
+
+class MyView: XView {
+    func findParentViewController() {
+        // Find the nearest view controller in the responder chain
+        if let viewController = self.findResponder(of: XViewController.self) {
+            print("Found parent view controller: \(viewController)")
+        }
+        
+        // Iterate through all responders
+        for responder in self.responders {
+            print("Responder: \(type(of: responder))")
+        }
+        
+        // Using sequence conformance
+        let controllers = self.compactMap { $0 as? XViewController }
+        print("Found \(controllers.count) view controllers in chain")
+    }
+}
+```
 
 ### Basic Type Usage
 
