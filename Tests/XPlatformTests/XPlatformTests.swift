@@ -85,6 +85,24 @@ final class XPlatformTests: XCTestCase {
     }
 
     @MainActor
+    func testCanvasViewFlipsOnMac() throws {
+        // Subclassing XCanvasView must compile on both platforms, and the
+        // instance must report top-left origin on macOS. On iOS, UIView is
+        // already top-left, so there's nothing to assert beyond "it compiles."
+        final class CanvasContentView: XCanvasView {}
+        let view = CanvasContentView()
+
+        #if os(macOS)
+        XCTAssertTrue(view.isFlipped, "XCanvasView must be top-left on macOS")
+
+        let clip = XCanvasClipView()
+        XCTAssertTrue(clip.isFlipped, "XCanvasClipView must be top-left on macOS")
+        _ = clip
+        #endif
+        _ = view
+    }
+
+    @MainActor
     func testDocsExamplesCompile() throws {
         // Mirrors the README / GETTING_STARTED examples — if any of these stop
         // compiling, the docs need to be fixed to match.

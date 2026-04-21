@@ -284,6 +284,64 @@ struct XPlatform {
 - **`cachesDirectory`**: Returns the caches directory URL
 - **`temporaryDirectory`**: Returns the temporary directory URL
 
+### Canvas Coordinate Convention
+
+AppKit's `NSView` defaults to a bottom-left origin; UIKit uses top-left throughout. That mismatch usually forces `#if` branches (or manual Y-flipping) anywhere a canvas / document view handles coordinates.
+
+XPlatform ships two primitives that remove the need for either:
+
+```swift
+#if canImport(AppKit)
+open class XCanvasView: NSView          // isFlipped = true
+open class XCanvasClipView: NSClipView  // isFlipped = true
+#elseif canImport(UIKit)
+public typealias XCanvasView = UIView   // UIKit is already top-left
+#endif
+```
+
+There is no `XCanvasClipView` on iOS — UIKit has no `NSClipView` equivalent. Gate references to it with `#if canImport(AppKit)`.
+
+#### Pattern: content view *is* scene space
+
+Subclass `XCanvasView` for the view that hosts your document, and set its `bounds` equal to your logical scene bounds. Native event APIs then return scene coordinates directly — no conversion math, no zoom math:
+
+```swift
+final class MyCanvasView: XCanvasView {
+    var scene: MyScene? {
+        didSet { bounds = scene?.bounds ?? .zero }
+    }
+
+    #if canImport(UIKit)
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let scenePoint = touch.location(in: self)   // ← already scene coords
+        handleTap(at: scenePoint)
+    }
+    #elseif canImport(AppKit)
+    override func mouseDown(with event: NSEvent) {
+        let scenePoint = convert(event.locationInWindow, from: nil)  // ← already scene coords
+        handleTap(at: scenePoint)
+    }
+    #endif
+}
+```
+
+On macOS, install `XCanvasClipView` as the scroll view's clip layer so the top-left convention extends through the whole stack:
+
+```swift
+#if canImport(AppKit)
+let scrollView = NSScrollView(frame: bounds)
+scrollView.contentView = XCanvasClipView(frame: scrollView.bounds)
+scrollView.documentView = canvasView
+#else
+let scrollView = UIScrollView(frame: bounds)
+scrollView.addSubview(canvasView)
+scrollView.contentSize = scene.bounds.size
+#endif
+```
+
+Zoom is handled natively by each scroll view (UIScrollView.zoomScale / NSScrollView.magnification) — touches arrive in the content view's un-zoomed coordinate space, which equals scene space. Event types (`UITouch` vs `NSEvent`) are intentionally not bridged; they carry genuinely different data (pressure, azimuth, modifiers, etc.).
+
 ## Usage Examples
 
 ### CGRect Transform

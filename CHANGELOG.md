@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-21
+
+### Added
+- **`XCanvasView`** — base class for canvas / document / content views whose
+  coordinate system is top-left origin on both platforms. On macOS this is an
+  `NSView` subclass that overrides `isFlipped` to return `true`; on iOS it is
+  a typealias for `UIView` (already top-left).
+- **`XCanvasClipView`** (macOS only) — `NSClipView` subclass with
+  `isFlipped = true`. Install on an `NSScrollView` via
+  `scrollView.contentView = XCanvasClipView(...)` to extend the top-left
+  convention through the clip layer.
+- README section "Canvas Coordinate Convention" documenting the pattern:
+  subclass `XCanvasView`, set `bounds == scene.bounds`, and native event APIs
+  return scene coordinates directly with no manual conversion math.
+
+### Design notes
+
+The intent is to solve the coordinate / origin problem at the geometry layer
+rather than by bridging events. `UITouch` and `NSEvent` carry genuinely
+different data (force, azimuth, modifiers, estimated-property updates), so
+XPlatform does not attempt to unify them. Once the content view's coordinate
+system is top-left and its bounds match the logical scene, native
+`touch.location(in:)` / `view.convert(event.locationInWindow, from: nil)`
+return scene coordinates directly — and platform-specific event code stays
+small and honest.
+
 ## [2.0.0] - 2026-04-21
 
 ### Changed (breaking)
