@@ -20,7 +20,6 @@ extension XView {
 		self.menu = menu
 	}
 	#else
-	@available(iOS 13.0, *)
 	public func addContextMenu(provider: @escaping () -> XMenu?) {
 		let interaction = UIContextMenuInteraction(delegate: ContextMenuDelegate(provider: provider))
 		self.addInteraction(interaction)
@@ -29,7 +28,6 @@ extension XView {
 }
 
 #if canImport(UIKit)
-@available(iOS 13.0, *)
 private class ContextMenuDelegate: NSObject, UIContextMenuInteractionDelegate {
 	let provider: () -> UIMenu?
 	

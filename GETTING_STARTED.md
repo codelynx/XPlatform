@@ -2,7 +2,7 @@
 
 ## The Problem: Apple's Platform Fragmentation
 
-When developing for Apple platforms, you face a fundamental challenge: **macOS uses AppKit while iOS/tvOS/watchOS use UIKit**. These frameworks share similar concepts but have different APIs:
+When developing for Apple platforms, you face a fundamental challenge: **macOS uses AppKit while iOS uses UIKit**. These frameworks share similar concepts but have different APIs:
 
 ```swift
 // On macOS
@@ -29,10 +29,10 @@ XPlatform provides **type aliases** that automatically map to the correct platfo
 ```swift
 import XPlatform
 
-// This works on ALL Apple platforms!
+// This works on both iOS and macOS!
 let view = XView()
 let color = XColor.red
-let font = XFont.xSystemFont(ofSize: 14, weight: .regular)
+let font = XFont.systemFont(ofSize: 14, weight: .regular)
 ```
 
 ## Key Benefits
@@ -61,8 +61,8 @@ XPlatform doesn't just alias types - it provides **unified APIs** for common ope
 view.addTapGesture(target: self, action: #selector(handleTap))
 
 // Pasteboard access - consistent interface
-let pasteboard = XPasteboard.xGeneral
-pasteboard.xString = "Cross-platform clipboard!"
+let pasteboard = XPasteboard.general
+pasteboard.stringValue = "Cross-platform clipboard!"
 
 // File system - same properties everywhere
 let documentsDir = XPlatform.documentsDirectory
@@ -88,12 +88,14 @@ struct MyView: View {
 - Apps targeting both macOS and iOS
 - Shared frameworks/libraries
 - Cross-platform SwiftUI components
-- Code that needs to work in widgets, extensions, or watch apps
 
 ❌ **Not needed for:**
 - iOS-only or macOS-only apps
 - Platform-specific features (e.g., Touch Bar, Apple Pencil)
 - Low-level system programming
+
+> tvOS and watchOS are not currently supported — several UIKit semantic color APIs
+> used by XPlatform are unavailable on those platforms.
 
 ## Quick Example: Cross-Platform View Controller
 
@@ -107,22 +109,22 @@ class MyViewController: XViewController {
         super.viewDidLoad()
         
         // Set adaptive background color
-        view.backgroundColor = XPlatform.adaptiveTextBackgroundColor
-        
+        view.backgroundColor = .primaryBackground
+
         // Add gesture recognizer
         view.addTapGesture(target: self, action: #selector(viewTapped))
-        
+
         // Work with fonts
-        let titleFont = XFont.xSystemFont(ofSize: 24, weight: .bold)
-        
+        let titleFont = XFont.systemFont(ofSize: 24, weight: .bold)
+
         // Access file system
         let cachesDir = XPlatform.cachesDirectory
         print("Caches at: \(cachesDir)")
     }
-    
+
     @objc func viewTapped() {
         // Copy to clipboard
-        XPasteboard.xGeneral.xString = "Tapped at \(Date())"
+        XPasteboard.general.stringValue = "Tapped at \(Date())"
     }
 }
 ```
@@ -130,9 +132,7 @@ class MyViewController: XViewController {
 ## Common Pitfalls and Solutions
 
 ### 1. **Name Conflicts**
-Some properties exist on both platforms but behave differently. XPlatform uses the 'x' prefix to avoid conflicts:
-- Use `XFont.xSystemFontSize` instead of `systemFontSize`
-- Use `XPasteboard.xGeneral` instead of `general`
+Most XPlatform extensions use the plain native name — the `XColor`/`XFont`/... return type already signals cross-platform intent. The lowercase `x` prefix is reserved for the rare case where a plain name would shadow an existing native property (e.g. `UIPasteboard.string` vs. XPlatform's `stringValue`).
 
 ### 2. **Coordinate Systems**
 macOS and iOS use different coordinate systems. XPlatform helps you detect this:
@@ -218,14 +218,21 @@ class PhotoGridViewController: XViewController {
     func setupCollectionView() {
         // Create layout - same code for all platforms
         let layout = createGridLayout()
-        
-        // Initialize collection view
+
+        // Initialize collection view. The `frame:collectionViewLayout:`
+        // initializer is UIKit-only, so the AppKit path sets the layout
+        // after construction.
+        #if os(macOS)
+        collectionView = XCollectionView(frame: view.bounds)
+        collectionView.collectionViewLayout = layout
+        #else
         collectionView = XCollectionView(frame: view.bounds, collectionViewLayout: layout)
-        collectionView.backgroundColor = XPlatform.secondaryBackgroundColor
-        
+        #endif
+        collectionView.backgroundColor = .secondaryBackground
+
         // Add to view hierarchy
         view.addSubview(collectionView)
-        
+
         // Setup constraints (using your preferred method)
         setupConstraints()
     }
@@ -319,11 +326,11 @@ class DocumentView: XView {
     }
     
     func performCopy() {
-        XPasteboard.xGeneral.xString = "Copied content"
+        XPasteboard.general.stringValue = "Copied content"
     }
-    
+
     func performPaste() {
-        if let content = XPasteboard.xGeneral.xString {
+        if let content = XPasteboard.general.stringValue {
             print("Pasted: \(content)")
         }
     }
@@ -395,13 +402,13 @@ struct CrossPlatformButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: CGFloat(XFont.xSystemFontSize)))
+                .font(.system(size: CGFloat(XFont.systemFontSize)))
                 .foregroundColor(Color(XPlatform.labelColor))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(isHovered ? XPlatform.tertiaryBackgroundColor : XPlatform.secondaryBackgroundColor))
+                        .fill(isHovered ? Color.tertiaryBackground : Color.secondaryBackground)
                 )
         }
         .buttonStyle(PlainButtonStyle())
@@ -435,7 +442,7 @@ struct ContentView: View {
             .linkButtonStyle()
         }
         .padding()
-        .background(Color(XPlatform.primaryBackgroundColor))
+        .background(Color.primaryBackground)
     }
 }
 ```

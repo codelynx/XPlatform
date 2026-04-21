@@ -5,6 +5,7 @@
 //  Cross-platform CGRect transform utilities
 //
 
+#if canImport(CoreGraphics)
 import Foundation
 import CoreGraphics
 
@@ -27,3 +28,4 @@ extension CGRect {
 		return transform
 	}
 }
+#endif	

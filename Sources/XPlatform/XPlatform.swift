@@ -4,6 +4,19 @@
 //
 //  Created by Kaz Yoshikawa on 2025/06/12.
 //
+//  Naming convention:
+//  - Types use the capital `X` prefix (`XView`, `XColor`, ...) as aliases for
+//    `NSView`/`UIView`, `NSColor`/`UIColor`, etc.
+//  - Members use the **plain** name when it does not collide with a native
+//    AppKit/UIKit member. The return type is already `XColor`/`XFont`/..., so
+//    no extra prefix is needed to signal cross-platform-ness.
+//    e.g. `XColor.primaryBackground`, `XView.tintColor`, `XPasteboard.general`.
+//  - The lowercase `x` prefix is reserved for the rare case where a plain
+//    name would shadow a native property on one platform. Currently no
+//    `x`-prefixed members ship — when a plain name would collide, prefer
+//    an alternative non-prefixed name (e.g. `XPasteboard.stringValue`
+//    rather than `.string`, since `UIPasteboard.string` already exists).
+//
 
 import Foundation
 import SwiftUI

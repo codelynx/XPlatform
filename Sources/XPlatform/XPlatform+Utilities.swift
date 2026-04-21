@@ -17,17 +17,8 @@ import UIKit
 
 public struct XPlatform {
 	// MARK: - Colors
-	
-	#if canImport(AppKit)
-	public static let primaryBackgroundColor = NSColor.controlBackgroundColor
-	public static let secondaryBackgroundColor = NSColor.windowBackgroundColor
-	public static let tertiaryBackgroundColor = NSColor.controlBackgroundColor
-	#elseif canImport(UIKit)
-	public static let primaryBackgroundColor = UIColor.systemBackground
-	public static let secondaryBackgroundColor = UIColor.secondarySystemBackground
-	public static let tertiaryBackgroundColor = UIColor.tertiarySystemBackground
-	#endif
-	
+	// For primary/secondary/tertiary backgrounds, use `XColor.primaryBackground` etc.
+
 	/// Adaptive background color that works well for text views
 	public static var adaptiveTextBackgroundColor: XColor {
 		#if canImport(AppKit)

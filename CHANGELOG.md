@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-21
+
+### Changed (breaking)
+- **Supported platforms narrowed to iOS 15+ and macOS 12+.** Previous versions
+  also declared tvOS 15 and watchOS 8, but those platforms did not actually
+  compile — several UIKit semantic color APIs XPlatform relies on are
+  unavailable there. This release aligns declared support with what was
+  actually tested. If you need tvOS or watchOS, please open an issue.
+- **Unified naming convention.** Member-level extensions now use the plain
+  native name wherever possible, since the `XColor`/`XFont`/... return type
+  already signals cross-platform intent. The lowercase `x` prefix is reserved
+  for the rare case where a plain name would shadow a native property.
+
+### Added
+- `XColor.primaryBackground` / `secondaryBackground` / `tertiaryBackground` —
+  canonical cross-platform background tiers.
+- Matching `Color.primaryBackground` / `secondaryBackground` / `tertiaryBackground`
+  for SwiftUI.
+- `XView.tintColor` on macOS (read-only, returns `controlAccentColor`), giving
+  cross-platform access without `#if`.
+- `XPasteboard.stringValue` — unified replacement for `xString`.
+
+### Removed
+- `XPlatform.primaryBackgroundColor`, `secondaryBackgroundColor`,
+  `tertiaryBackgroundColor` — superseded by `XColor.primaryBackground` etc.
+- `XView.xTintColor` and `XView.effectiveTintColor` — use `tintColor` directly.
+- `XFont.xSystemFont(ofSize:weight:)`, `xSystemFontSize`, `xSmallSystemFontSize`,
+  `xLabelFontSize` — all exist natively on both `NSFont` and `UIFont`, so the
+  wrappers were pure pass-throughs.
+- `XPasteboard.xGeneral` — `.general` works cross-platform natively.
+- `XPasteboard.xString` — renamed to `stringValue`.
+- `XColor.xLabel`, `xSecondaryLabel`, `xTertiaryLabel`, `xSeparator`, `xLink`,
+  `xPlaceholderText`, `xControlBackground`, `xGrid`, `xSelectedContentBackground`,
+  `xDisabledText`, and `windowBackground` — redundant with their plain-named
+  equivalents (native on iOS; provided on macOS via the existing extension).
+
+### Fixed
+- iOS compile bug in `XView.resignFirstResponder()` that used `super` inside an
+  extension. The method is now macOS-only; on iOS use the native
+  `UIResponder.resignFirstResponder()`.
+- Dropped redundant `@available` checks against iOS 13/14 and macOS 10.14/11.0
+  that were always true under the declared deployment targets.
+
+### Migration
+
+| Before | After |
+|--------|-------|
+| `XPlatform.primaryBackgroundColor` | `XColor.primaryBackground` |
+| `XPlatform.secondaryBackgroundColor` | `XColor.secondaryBackground` |
+| `XPlatform.tertiaryBackgroundColor` | `XColor.tertiaryBackground` |
+| `XFont.xSystemFont(ofSize:weight:)` | `XFont.systemFont(ofSize:weight:)` |
+| `XFont.xSystemFontSize` | `XFont.systemFontSize` |
+| `XPasteboard.xGeneral` | `XPasteboard.general` |
+| `pasteboard.xString` | `pasteboard.stringValue` |
+| `XColor.xLabel` | `XColor.label` |
+| `view.xTintColor` / `view.effectiveTintColor` | `view.tintColor` |
+
 ## [1.1.5] - 2025-08-03
 
 ### Added

@@ -41,16 +41,15 @@ extension XView {
 		#endif
 	}
 	
-	/// Resigns first responder status
+	#if canImport(AppKit)
+	/// Resigns first responder status on macOS by clearing the window's first responder.
+	/// On iOS, use the native `resignFirstResponder()` on `UIResponder` directly.
 	public func resignFirstResponder() {
-		#if canImport(AppKit)
 		if self.window?.firstResponder == self {
 			self.window?.makeFirstResponder(nil)
 		}
-		#else
-		_ = super.resignFirstResponder()
-		#endif
 	}
+	#endif
 	
 	/// Adds a tap gesture recognizer
 	public func addTapGesture(target: Any?, action: Selector) {
@@ -78,49 +77,6 @@ extension XView {
 	public func addPanGesture(target: Any?, action: Selector) {
 		let gesture = XPanGestureRecognizer(target: target, action: action)
 		self.addGestureRecognizer(gesture)
-	}
-	
-	// MARK: - Tint Color Support
-	
-	/// Gets or sets the tint color for the view
-	/// On macOS, this uses the effectiveAppearance and controlAccentColor
-	/// On iOS, this uses the native tintColor property
-	public var xTintColor: XColor? {
-		get {
-			#if canImport(AppKit)
-			if #available(macOS 10.14, *) {
-				return NSColor.controlAccentColor
-			} else {
-				return NSColor.selectedControlColor
-			}
-			#else
-			return self.tintColor
-			#endif
-		}
-		set {
-			#if canImport(AppKit)
-			// On macOS, we can't directly set a tint color on NSView
-			// This would need to be handled by subviews or custom drawing
-			// Store it as an associated object if needed
-			#else
-			if let color = newValue {
-				self.tintColor = color
-			}
-			#endif
-		}
-	}
-	
-	/// Returns the effective tint color, traversing up the view hierarchy if needed
-	public var effectiveTintColor: XColor {
-		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return NSColor.controlAccentColor
-		} else {
-			return NSColor.selectedControlColor
-		}
-		#else
-		return self.tintColor
-		#endif
 	}
 	
 	// MARK: - Purpose-Specific Colors
@@ -171,11 +127,7 @@ extension XView {
 	/// Returns an appropriate highlight/selection color for this view
 	public var appropriateSelectionColor: XColor {
 		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return .selectedContentBackgroundColor
-		} else {
-			return .selectedControlColor
-		}
+		return .selectedContentBackgroundColor
 		#else
 		return self.tintColor.withAlphaComponent(0.3)
 		#endif
@@ -269,3 +221,28 @@ extension XView {
 		#endif
 	}
 }
+
+#if canImport(AppKit)
+extension XView {
+	/// Cross-platform parity with `UIView.tintColor`. Returns the system accent color.
+	/// macOS has no per-view tint, so this is read-only; write support is iOS-only.
+	public var tintColor: XColor {
+		return NSColor.controlAccentColor
+	}
+
+	/// Cross-platform parity with `UIView.backgroundColor`.
+	/// Layer-backed on macOS; sets `wantsLayer = true` on assignment.
+	/// Subclasses with their own native `backgroundColor` (e.g. `NSTextField`, `NSBox`)
+	/// override this with their own storage and are not affected.
+	public var backgroundColor: XColor? {
+		get {
+			guard let cgColor = self.layer?.backgroundColor else { return nil }
+			return NSColor(cgColor: cgColor)
+		}
+		set {
+			self.wantsLayer = true
+			self.layer?.backgroundColor = newValue?.cgColor
+		}
+	}
+}
+#endif

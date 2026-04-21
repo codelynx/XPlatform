@@ -5,6 +5,7 @@
 //  SwiftUI integration extensions
 //
 
+#if canImport(SwiftUI)
 import SwiftUI
 
 #if canImport(AppKit)
@@ -56,3 +57,5 @@ extension View {
 		#endif
 	}
 }
+
+#endif // canImport(SwiftUI)

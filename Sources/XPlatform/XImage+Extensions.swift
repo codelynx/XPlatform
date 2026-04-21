@@ -5,6 +5,7 @@
 //  Cross-platform image data and CGImage extensions
 //
 
+#if canImport(SwiftUI)
 import Foundation
 import SwiftUI
 
@@ -35,3 +36,5 @@ extension XImage {
 	
 	// Note: UIImage already has a cgImage property, no extension needed for UIKit
 }
+
+#endif // canImport(SwiftUI)

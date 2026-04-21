@@ -140,11 +140,7 @@ extension XColor {
 	
 	/// Alternate selected control color for lists
 	public static var alternateSelectedControl: XColor {
-		if #available(macOS 11.0, *) {
-			return .unemphasizedSelectedContentBackgroundColor
-		} else {
-			return .alternateSelectedControlColor
-		}
+		return .unemphasizedSelectedContentBackgroundColor
 	}
 	
 	// MARK: - Control Colors
@@ -209,120 +205,9 @@ extension XColor {
 	/// Accent/tint color that respects user preferences
 	public static var accent: XColor {
 		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return .controlAccentColor
-		} else {
-			return .selectedControlColor
-		}
+		return .controlAccentColor
 		#else
-		if #available(iOS 14.0, *) {
-			return .tintColor
-		} else {
-			return .systemBlue
-		}
-		#endif
-	}
-	
-	/// Window/view background color
-	public static var windowBackground: XColor {
-		#if canImport(AppKit)
-		return .windowBackgroundColor
-		#else
-		return .systemBackground
-		#endif
-	}
-	
-	/// Control background color
-	public static var xControlBackground: XColor {
-		#if canImport(AppKit)
-		return .controlBackgroundColor
-		#else
-		return .secondarySystemBackground
-		#endif
-	}
-	
-	/// Primary label/text color
-	public static var xLabel: XColor {
-		#if canImport(AppKit)
-		return .labelColor
-		#else
-		return .label
-		#endif
-	}
-	
-	/// Secondary label color
-	public static var xSecondaryLabel: XColor {
-		#if canImport(AppKit)
-		return .secondaryLabelColor
-		#else
-		return .secondaryLabel
-		#endif
-	}
-	
-	/// Tertiary label color
-	public static var xTertiaryLabel: XColor {
-		#if canImport(AppKit)
-		return .tertiaryLabelColor
-		#else
-		return .tertiaryLabel
-		#endif
-	}
-	
-	/// Separator color
-	public static var xSeparator: XColor {
-		#if canImport(AppKit)
-		return .separatorColor
-		#else
-		return .separator
-		#endif
-	}
-	
-	/// Link color
-	public static var xLink: XColor {
-		#if canImport(AppKit)
-		return .linkColor
-		#else
-		return .link
-		#endif
-	}
-	
-	/// Grid/table line color
-	public static var xGrid: XColor {
-		#if canImport(AppKit)
-		return .gridColor
-		#else
-		return .separator
-		#endif
-	}
-	
-	/// Placeholder text color
-	public static var xPlaceholderText: XColor {
-		#if canImport(AppKit)
-		return .placeholderTextColor
-		#else
-		return .placeholderText
-		#endif
-	}
-	
-	/// Selected/highlighted content background
-	public static var xSelectedContentBackground: XColor {
-		#if canImport(AppKit)
-		return .selectedContentBackgroundColor
-		#else
-		if #available(iOS 14.0, *) {
-			return .tintColor.withAlphaComponent(0.3)
-		} else {
-			return .systemBlue.withAlphaComponent(0.3)
-		}
-		#endif
-	}
-	
-	/// Disabled text color
-	public static var xDisabledText: XColor {
-		#if canImport(AppKit)
-		return .disabledControlTextColor
-		#else
-		return .tertiaryLabel
+		return .tintColor
 		#endif
 	}
 	
@@ -335,68 +220,44 @@ extension XColor {
 	
 	/// Returns the appropriate color for success states (checkmarks, success messages)
 	public static func colorForSuccess() -> XColor {
-		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return .systemGreen
-		} else {
-			return .green
-		}
-		#else
 		return .systemGreen
-		#endif
 	}
-	
+
 	/// Returns the appropriate color for warning states
 	public static func colorForWarning() -> XColor {
-		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return .systemOrange
-		} else {
-			return .orange
-		}
-		#else
 		return .systemOrange
-		#endif
 	}
-	
+
 	/// Returns the appropriate color for error/destructive states
 	public static func colorForError() -> XColor {
-		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return .systemRed
-		} else {
-			return .red
-		}
-		#else
 		return .systemRed
-		#endif
 	}
-	
+
 	/// Returns the appropriate color for informational states
 	public static func colorForInfo() -> XColor {
-		#if canImport(AppKit)
-		if #available(macOS 10.14, *) {
-			return .systemBlue
-		} else {
-			return .blue
-		}
-		#else
 		return .systemBlue
-		#endif
 	}
 	
 	/// Returns the appropriate color for disabled/inactive states
 	public static func colorForDisabledState() -> XColor {
-		return xDisabledText
+		#if canImport(AppKit)
+		return .disabledControlTextColor
+		#else
+		return .tertiaryLabel
+		#endif
 	}
-	
+
 	/// Returns the appropriate color for placeholder content
 	public static func colorForPlaceholder() -> XColor {
-		return xPlaceholderText
+		return .placeholderText
 	}
-	
+
 	/// Returns the appropriate color for selected/highlighted content
 	public static func colorForSelection() -> XColor {
-		return xSelectedContentBackground
+		#if canImport(AppKit)
+		return .selectedContentBackgroundColor
+		#else
+		return .tintColor.withAlphaComponent(0.3)
+		#endif
 	}
 }

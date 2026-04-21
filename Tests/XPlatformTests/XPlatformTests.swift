@@ -12,10 +12,10 @@ final class XPlatformTests: XCTestCase {
         XCTAssertNotNil(image)
     }
     
-    func testXPlatformColors() throws {
-        XCTAssertNotNil(XPlatform.primaryBackgroundColor)
-        XCTAssertNotNil(XPlatform.secondaryBackgroundColor)
-        XCTAssertNotNil(XPlatform.tertiaryBackgroundColor)
+    func testBackgroundTiers() throws {
+        XCTAssertNotNil(XColor.primaryBackground)
+        XCTAssertNotNil(XColor.secondaryBackground)
+        XCTAssertNotNil(XColor.tertiaryBackground)
     }
     
     func testAdaptiveColors() throws {
@@ -39,12 +39,12 @@ final class XPlatformTests: XCTestCase {
     }
     
     func testFontMethods() throws {
-        let font = XFont.xSystemFont(ofSize: 14, weight: .regular)
+        let font = XFont.systemFont(ofSize: 14, weight: .regular)
         XCTAssertNotNil(font)
-        
-        XCTAssertGreaterThan(XFont.xSystemFontSize, 0)
-        XCTAssertGreaterThan(XFont.xSmallSystemFontSize, 0)
-        XCTAssertGreaterThan(XFont.xLabelFontSize, 0)
+
+        XCTAssertGreaterThan(XFont.systemFontSize, 0)
+        XCTAssertGreaterThan(XFont.smallSystemFontSize, 0)
+        XCTAssertGreaterThan(XFont.labelFontSize, 0)
     }
     
     func testViewExtensions() throws {
@@ -65,16 +65,16 @@ final class XPlatformTests: XCTestCase {
     }
     
     func testPasteboard() throws {
-        let pasteboard = XPasteboard.xGeneral
+        let pasteboard = XPasteboard.general
         XCTAssertNotNil(pasteboard)
         
         // Test string operations
         let testString = "XPlatform Test String"
-        pasteboard.xString = testString
-        
+        pasteboard.stringValue = testString
+
         #if os(macOS)
         // On macOS, we can verify the string was set
-        XCTAssertEqual(pasteboard.xString, testString)
+        XCTAssertEqual(pasteboard.stringValue, testString)
         #endif
     }
     
@@ -82,6 +82,24 @@ final class XPlatformTests: XCTestCase {
         XCTAssertEqual(XAlertStyle.informational, 0)
         XCTAssertEqual(XAlertStyle.warning, 1)
         XCTAssertEqual(XAlertStyle.critical, 2)
+    }
+
+    @MainActor
+    func testDocsExamplesCompile() throws {
+        // Mirrors the README / GETTING_STARTED examples — if any of these stop
+        // compiling, the docs need to be fixed to match.
+        let view = XView()
+        view.backgroundColor = .primaryBackground
+
+        #if os(macOS)
+        let cv = XCollectionView()
+        cv.backgroundColor = .secondaryBackground
+        #else
+        let layout = UICollectionViewFlowLayout()
+        let cv = XCollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = .secondaryBackground
+        #endif
+        _ = (view, cv)
     }
     
     @objc private func dummyAction() {

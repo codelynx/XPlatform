@@ -1,10 +1,10 @@
 # XPlatform
 
-A Swift package that provides cross-platform type aliases and utilities for building applications that work seamlessly across iOS, macOS, tvOS, and watchOS.
+A Swift package that provides cross-platform type aliases and utilities for building applications that work seamlessly across iOS and macOS.
 
 ## Overview
 
-XPlatform simplifies cross-platform Swift development by providing unified type aliases and convenience methods that abstract away platform-specific differences between AppKit (macOS) and UIKit (iOS/tvOS/watchOS).
+XPlatform simplifies cross-platform Swift development by providing unified type aliases and convenience methods that abstract away platform-specific differences between AppKit (macOS) and UIKit (iOS).
 
 📚 **New to XPlatform?** Check out our [Getting Started Guide](GETTING_STARTED.md) to understand the problems XPlatform solves and see real-world examples.
 
@@ -29,9 +29,11 @@ Or add it through Xcode:
 
 - iOS 15.0+
 - macOS 12.0+
-- tvOS 15.0+
-- watchOS 8.0+
 - Swift 5.7+
+
+> tvOS and watchOS are not currently supported — several UIKit semantic color APIs
+> that XPlatform depends on are unavailable there. If you need those platforms,
+> open an issue.
 
 ## API Reference
 
@@ -39,8 +41,8 @@ Or add it through Xcode:
 
 XPlatform provides unified type aliases that map to the appropriate platform-specific types:
 
-| XPlatform Type | macOS (AppKit) | iOS/tvOS/watchOS (UIKit) |
-|----------------|----------------|---------------------------|
+| XPlatform Type | macOS (AppKit) | iOS (UIKit) |
+|----------------|----------------|-------------|
 | `XView` | `NSView` | `UIView` |
 | `XViewController` | `NSViewController` | `UIViewController` |
 | `XWindow` | `NSWindow` | `UIWindow` |
@@ -94,7 +96,7 @@ extension XView {
 
 ##### Layout
 - **`setNeedsLayout()`**: Marks the view as needing layout
-  - Platform Notes: On macOS, this sets `needsLayout = true`. On iOS/tvOS/watchOS, the native method is already available
+  - Platform Notes: On macOS, this sets `needsLayout = true`. On iOS, the native method is already available
 
 ##### Coordinate System
 - **`usesFlippedCoordinates`**: Returns whether the view uses a flipped coordinate system
@@ -161,7 +163,7 @@ extension XImage {
 - **Parameters**: 
   - `compressionQuality`: A value between 0.0 (maximum compression) and 1.0 (no compression)
 - **Returns**: JPEG data representation of the image, or `nil` if conversion fails
-- **Platform Notes**: Only available on macOS; iOS/tvOS/watchOS already provide this method natively
+- **Platform Notes**: Only available on macOS; iOS already provides this method natively
 
 ### SwiftUI Integration
 
@@ -186,7 +188,7 @@ extension View {
 - **Description**: Applies a link-style button appearance
 - **Platform Behavior**:
   - macOS: Uses `.buttonStyle(.link)`
-  - iOS/tvOS/watchOS: Uses `.buttonStyle(.plain)` with blue foreground color
+  - iOS: Uses `.buttonStyle(.plain)` with blue foreground color
 
 ##### Primary Button Style
 ```swift
@@ -206,33 +208,18 @@ extension View {
 - **Description**: Applies a bordered button style suitable for secondary actions
 - **Platform Behavior**: Uses `.bordered` on all platforms
 
-#### XFont Extensions
+#### XFont
 
-```swift
-extension XFont {
-    static func xSystemFont(ofSize size: CGFloat, weight: XFont.Weight) -> XFont
-    static var xSystemFontSize: CGFloat { get }
-    static var xSmallSystemFontSize: CGFloat { get }
-    static var xLabelFontSize: CGFloat { get }
-}
-```
-- **`xSystemFont(ofSize:weight:)`**: Creates a system font with the specified size and weight
-- **`xSystemFontSize`**: Returns the default system font size
-- **`xSmallSystemFontSize`**: Returns the default small system font size
-- **`xLabelFontSize`**: Returns the default label font size
-- **Note**: Methods are prefixed with 'x' to avoid conflicts with native properties
+`XFont.systemFont(ofSize:weight:)`, `XFont.systemFontSize`, `XFont.smallSystemFontSize`, and `XFont.labelFontSize` are available natively on both `NSFont` and `UIFont` — no wrappers needed.
 
 #### XPasteboard Extensions
 
 ```swift
 extension XPasteboard {
-    static var xGeneral: XPasteboard { get }
-    var xString: String? { get set }
+    var stringValue: String? { get set }
 }
 ```
-- **`xGeneral`**: Returns the general/system pasteboard
-- **`xString`**: Gets or sets the string content of the pasteboard
-- **Note**: Properties are prefixed with 'x' to avoid conflicts with native properties
+- **`stringValue`**: Gets or sets the string content of the pasteboard. `XPasteboard.general` is available natively on both platforms.
 
 #### XAlert Extensions
 
@@ -250,38 +237,45 @@ extension XAlert {
 - **`showAlert(title:message:style:)`**: Shows a simple alert with a message
   - Platform Notes: On macOS, displays a modal alert. On iOS, prints to console (would need view controller for proper presentation)
 
+### Background Color Tiers
+
+Cross-platform background colors with no `#if` at call sites:
+
+```swift
+extension XColor {
+    static var primaryBackground: XColor
+    static var secondaryBackground: XColor
+    static var tertiaryBackground: XColor
+}
+
+extension Color {
+    static var primaryBackground: Color
+    static var secondaryBackground: Color
+    static var tertiaryBackground: Color
+}
+```
+
+| Tier | iOS | macOS |
+|------|-----|-------|
+| `primaryBackground` | `systemBackground` | `windowBackgroundColor` |
+| `secondaryBackground` | `secondarySystemBackground` | `controlBackgroundColor` |
+| `tertiaryBackground` | `tertiarySystemBackground` | `underPageBackgroundColor` |
+
 ### XPlatform Struct
 
 ```swift
 struct XPlatform {
-    // Colors
-    static let primaryBackgroundColor: XColor
-    static let secondaryBackgroundColor: XColor
-    static let tertiaryBackgroundColor: XColor
     static var adaptiveTextBackgroundColor: XColor { get }
     static var labelColor: XColor { get }
     static var secondaryLabelColor: XColor { get }
     static var separatorColor: XColor { get }
-    
-    // File System
+
     static var documentsDirectory: URL { get }
     static var applicationSupportDirectory: URL { get }
     static var cachesDirectory: URL { get }
     static var temporaryDirectory: URL { get }
 }
 ```
-
-#### Color Properties
-
-| Property | macOS | iOS/tvOS/watchOS |
-|----------|-------|------------------|
-| `primaryBackgroundColor` | `NSColor.controlBackgroundColor` | `UIColor.systemBackground` |
-| `secondaryBackgroundColor` | `NSColor.windowBackgroundColor` | `UIColor.secondarySystemBackground` |
-| `tertiaryBackgroundColor` | `NSColor.controlBackgroundColor` | `UIColor.tertiarySystemBackground` |
-| `adaptiveTextBackgroundColor` | `NSColor.textBackgroundColor` | `UIColor.systemBackground` |
-| `labelColor` | `NSColor.labelColor` | `UIColor.label` |
-| `secondaryLabelColor` | `NSColor.secondaryLabelColor` | `UIColor.secondaryLabel` |
-| `separatorColor` | `NSColor.separatorColor` | `UIColor.separator` |
 
 #### File System Properties
 
@@ -366,7 +360,7 @@ class MyViewController: XViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = XPlatform.primaryBackgroundColor
+        view.backgroundColor = .primaryBackground
         
         // Your cross-platform code here
     }
@@ -433,10 +427,10 @@ class InteractiveView: XView {
 ```swift
 import XPlatform
 
-// Create system fonts
-let titleFont = XFont.xSystemFont(ofSize: 24, weight: .bold)
-let bodyFont = XFont.xSystemFont(ofSize: XFont.xSystemFontSize, weight: .regular)
-let smallFont = XFont.xSystemFont(ofSize: XFont.xSmallSystemFontSize, weight: .light)
+// Create system fonts (native APIs on both NSFont and UIFont)
+let titleFont = XFont.systemFont(ofSize: 24, weight: .bold)
+let bodyFont = XFont.systemFont(ofSize: XFont.systemFontSize, weight: .regular)
+let smallFont = XFont.systemFont(ofSize: XFont.smallSystemFontSize, weight: .light)
 ```
 
 ### Pasteboard Operations
@@ -445,11 +439,11 @@ let smallFont = XFont.xSystemFont(ofSize: XFont.xSmallSystemFontSize, weight: .l
 import XPlatform
 
 // Copy text to pasteboard
-let pasteboard = XPasteboard.xGeneral
-pasteboard.xString = "Hello, Cross-Platform!"
+let pasteboard = XPasteboard.general
+pasteboard.stringValue = "Hello, Cross-Platform!"
 
 // Read text from pasteboard
-if let copiedText = pasteboard.xString {
+if let copiedText = pasteboard.stringValue {
     print("Pasteboard contains: \(copiedText)")
 }
 ```
@@ -480,14 +474,14 @@ struct ThemedView: View {
         VStack {
             Text("Primary Label")
                 .foregroundColor(Color(XPlatform.labelColor))
-            
+
             Text("Secondary Label")
                 .foregroundColor(Color(XPlatform.secondaryLabelColor))
-            
+
             Divider()
                 .background(Color(XPlatform.separatorColor))
         }
-        .background(Color(XPlatform.adaptiveTextBackgroundColor))
+        .background(Color.primaryBackground)
     }
 }
 ```
