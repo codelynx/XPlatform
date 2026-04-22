@@ -1,5 +1,7 @@
 # XPlatform
 
+[![CI](https://github.com/codelynx/XPlatform/actions/workflows/ci.yml/badge.svg)](https://github.com/codelynx/XPlatform/actions/workflows/ci.yml)
+
 A Swift package that provides cross-platform type aliases and utilities for building applications that work seamlessly across iOS and macOS.
 
 ## Overview
