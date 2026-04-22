@@ -74,12 +74,16 @@ XPlatform provides unified type aliases that map to the appropriate platform-spe
 ```swift
 extension CGRect {
     func transform(to targetRect: CGRect) -> CGAffineTransform
+    func transformIfValid(to targetRect: CGRect) -> CGAffineTransform?
 }
 ```
 - **`transform(to:)`**: Creates a transform that maps this rectangle to the target rectangle
   - Parameters: `targetRect` - The destination rectangle to transform to
   - Returns: A `CGAffineTransform` that maps this rectangle to the target rectangle
   - Use Case: Useful for scaling and positioning content between different coordinate spaces
+  - Note: Divides by source width/height. A source rect with zero width/height produces an invalid transform.
+- **`transformIfValid(to:)`**: Same as `transform(to:)` but returns `nil` when the source rectangle has zero width or height.
+  - Use this variant when the source rectangle may be degenerate.
 
 #### XView Extensions
 
@@ -272,19 +276,25 @@ struct XPlatform {
     static var secondaryLabelColor: XColor { get }
     static var separatorColor: XColor { get }
 
+    // Force-unwrapped convenience accessors (never fail in practice on iOS/macOS):
     static var documentsDirectory: URL { get }
     static var applicationSupportDirectory: URL { get }
     static var cachesDirectory: URL { get }
     static var temporaryDirectory: URL { get }
+
+    // Safe optional variants — prefer these in new code:
+    static var documentsDirectoryIfAvailable: URL? { get }
+    static var applicationSupportDirectoryIfAvailable: URL? { get }
+    static var cachesDirectoryIfAvailable: URL? { get }
 }
 ```
 
 #### File System Properties
 
-- **`documentsDirectory`**: Returns the user's documents directory URL
-- **`applicationSupportDirectory`**: Returns the application support directory URL
-- **`cachesDirectory`**: Returns the caches directory URL
-- **`temporaryDirectory`**: Returns the temporary directory URL
+- **`documentsDirectory`** / **`documentsDirectoryIfAvailable`**: User's documents directory. Convenience property force-unwraps internally; the `IfAvailable` variant returns `nil` if the lookup yields no URL.
+- **`applicationSupportDirectory`** / **`applicationSupportDirectoryIfAvailable`**: Application support directory, with the same convention.
+- **`cachesDirectory`** / **`cachesDirectoryIfAvailable`**: Caches directory, with the same convention.
+- **`temporaryDirectory`**: Temporary directory. `FileManager.default.temporaryDirectory` is already non-optional, so no `IfAvailable` sibling.
 
 ### Canvas Coordinate Convention
 

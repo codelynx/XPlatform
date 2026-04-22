@@ -30,12 +30,28 @@ final class XPlatformTests: XCTestCase {
         XCTAssertNotNil(XPlatform.applicationSupportDirectory)
         XCTAssertNotNil(XPlatform.cachesDirectory)
         XCTAssertNotNil(XPlatform.temporaryDirectory)
-        
+
         // Verify they are valid URLs
         XCTAssertTrue(XPlatform.documentsDirectory.isFileURL)
         XCTAssertTrue(XPlatform.applicationSupportDirectory.isFileURL)
         XCTAssertTrue(XPlatform.cachesDirectory.isFileURL)
         XCTAssertTrue(XPlatform.temporaryDirectory.isFileURL)
+    }
+
+    func testFileSystemDirectoriesIfAvailable() throws {
+        // Safe variants: non-nil and file URLs on current platforms.
+        let docs = try XCTUnwrap(XPlatform.documentsDirectoryIfAvailable)
+        let appSupport = try XCTUnwrap(XPlatform.applicationSupportDirectoryIfAvailable)
+        let caches = try XCTUnwrap(XPlatform.cachesDirectoryIfAvailable)
+
+        XCTAssertTrue(docs.isFileURL)
+        XCTAssertTrue(appSupport.isFileURL)
+        XCTAssertTrue(caches.isFileURL)
+
+        // Safe and unsafe variants must agree on current platforms.
+        XCTAssertEqual(docs, XPlatform.documentsDirectory)
+        XCTAssertEqual(appSupport, XPlatform.applicationSupportDirectory)
+        XCTAssertEqual(caches, XPlatform.cachesDirectory)
     }
     
     func testFontMethods() throws {
@@ -82,6 +98,33 @@ final class XPlatformTests: XCTestCase {
         XCTAssertEqual(XAlertStyle.informational, 0)
         XCTAssertEqual(XAlertStyle.warning, 1)
         XCTAssertEqual(XAlertStyle.critical, 2)
+    }
+
+    func testCGRectTransformIfValid() throws {
+        let source = CGRect(x: 0, y: 0, width: 100, height: 100)
+        let target = CGRect(x: 50, y: 50, width: 200, height: 200)
+
+        // Valid rect → non-nil, matches the unchecked variant.
+        let safe = try XCTUnwrap(source.transformIfValid(to: target))
+        let unchecked = source.transform(to: target)
+        XCTAssertEqual(safe.a, unchecked.a, accuracy: 1e-10)
+        XCTAssertEqual(safe.b, unchecked.b, accuracy: 1e-10)
+        XCTAssertEqual(safe.c, unchecked.c, accuracy: 1e-10)
+        XCTAssertEqual(safe.d, unchecked.d, accuracy: 1e-10)
+        XCTAssertEqual(safe.tx, unchecked.tx, accuracy: 1e-10)
+        XCTAssertEqual(safe.ty, unchecked.ty, accuracy: 1e-10)
+
+        // Zero width → nil.
+        let zeroWidth = CGRect(x: 0, y: 0, width: 0, height: 100)
+        XCTAssertNil(zeroWidth.transformIfValid(to: target))
+
+        // Zero height → nil.
+        let zeroHeight = CGRect(x: 0, y: 0, width: 100, height: 0)
+        XCTAssertNil(zeroHeight.transformIfValid(to: target))
+
+        // Zero target dimensions are valid (collapse to zero scale).
+        let collapsedTarget = CGRect(x: 0, y: 0, width: 0, height: 0)
+        XCTAssertNotNil(source.transformIfValid(to: collapsedTarget))
     }
 
     @MainActor
