@@ -144,6 +144,8 @@ if view.usesFlippedCoordinates {
 }
 ```
 
+For canvas / document views that need guaranteed top-left origin on both platforms, subclass `XCanvasView` (macOS: flipped `NSView`; iOS: `UIView` alias). Install `XCanvasClipView` on macOS `NSScrollView` to extend the convention through the clip layer. See the [Canvas Coordinate Convention section in the README](README.md#canvas-coordinate-convention) for the full pattern and examples.
+
 ### 3. **Missing APIs**
 Some APIs only exist on one platform. XPlatform provides unified alternatives:
 ```swift

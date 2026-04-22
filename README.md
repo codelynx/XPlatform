@@ -16,7 +16,7 @@ Add XPlatform to your project by adding the following to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yourusername/XPlatform.git", from: "1.0.0")
+    .package(url: "https://github.com/codelynx/XPlatform.git", from: "2.1.1")
 ]
 ```
 
@@ -424,6 +424,12 @@ class MyViewController: XViewController {
     }
 }
 ```
+
+> **Note:** On macOS, assigning `view.backgroundColor` enables layer backing
+> (`wantsLayer = true`). That is required to store a color on `NSView`, but
+> layer backing can affect AppKit drawing and view behavior — keep it in mind
+> for views with custom `draw(_:)` overrides or AppKit subviews that rely on
+> non-layer-backed rendering.
 
 ### Working with Images
 

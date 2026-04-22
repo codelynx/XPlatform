@@ -231,7 +231,9 @@ extension XView {
 	}
 
 	/// Cross-platform parity with `UIView.backgroundColor`.
-	/// Layer-backed on macOS; sets `wantsLayer = true` on assignment.
+	/// On macOS, setting this property enables layer backing by setting
+	/// `wantsLayer = true`, then writes `layer?.backgroundColor`.
+	/// Be aware that layer backing can affect AppKit drawing and view behavior.
 	/// Subclasses with their own native `backgroundColor` (e.g. `NSTextField`, `NSBox`)
 	/// override this with their own storage and are not affected.
 	public var backgroundColor: XColor? {
